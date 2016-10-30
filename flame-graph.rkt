@@ -26,7 +26,7 @@
 
   ;; construct all stacks for this node and its children
   (define (recur nd parents)
-    (match-define (node id src _ total _ _ callees) nd)
+    (match-define (node id src _ total self _ callees) nd)
 
     ;; format a string to be used in the graph labels
     (define name
@@ -50,11 +50,11 @@
     (cond [(null? leaf-cases)
            children]
           [else
-           (define children-total
-             (apply + (map stack-count children)))
-           ;; cdr off the top because it's always "#f" for the ROOT node
-           (cons (stack (cdr (reverse (cons name parents)))
-                        (- total children-total))
+           (cons ;; cdr off the top because it's always "#f" for the ROOT node
+                 (stack (cdr (reverse (cons name parents)))
+                        ;; only count self time to avoid double counting
+                        ;; child times
+                        self)
                  children)]))
 
   (recur *-node '()))
