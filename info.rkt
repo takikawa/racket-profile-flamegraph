@@ -2,3 +2,5 @@
 
 (define collection "profile-flame-graph")
 (define scribblings '(("profile-flame-graph.scrbl")))
+(define deps '("base" "rsvg" "pict" "profile-lib"))
+(define build-deps '("scribble-lib" "racket-doc" "profile-doc"))
