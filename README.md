@@ -1,5 +1,7 @@
 # profile-flame-graph
 
+[![Scribble](https://img.shields.io/badge/Docs-Scribble-blue.svg)](http://docs.racket-lang.org/profile-flame-graph/index.html)
+
 A library for providing Racket profiler outputs as
 [flame graphs](https://github.com/brendangregg/FlameGraph).
 
