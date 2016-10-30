@@ -18,7 +18,7 @@ raco pkg install profile-flame-graph
 
 Wrap the expression you want to profile like this:
 
-```
+```racket
 (profile <your-code-here>
          #:svg-path "my-profile.svg"
          #:preview? #t)
