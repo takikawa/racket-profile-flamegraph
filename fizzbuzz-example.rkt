@@ -17,4 +17,5 @@
 
 (profile-thunk-fg (λ ()
                     (parameterize ([current-output-port (open-output-nowhere)])
-                      (fizzbuzz 10000000))))
+                      (fizzbuzz 10000000)))
+                  "fizzbuzz.svg")
