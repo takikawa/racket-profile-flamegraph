@@ -10,18 +10,32 @@ add it to your `PATH` variable.
 
 # Quick usage
 
-Install with
+Install with:
 
 ```
 raco pkg install profile-flame-graph
 ```
 
-Wrap the expression you want to profile like this:
+You will need to install FlameGraph. On a unix system, that might
+look like this:
+
+```
+git clone https://github.com/brendangregg/FlameGraph.git
+export PATH="$PATH:$PWD/FlameGraph"
+```
+
+Wrap the expression you want to profile in your program like this:
 
 ```racket
 (profile <your-code-here>
          #:svg-path "my-profile.svg"
          #:preview? #t)
+```
+
+and run your program:
+
+```
+racket <your-program>.rkt
 ```
 
 which will write the profile output to `my-profile.svg` and pop
