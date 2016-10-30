@@ -39,9 +39,9 @@
              (print-stacks (profile->stacks pf)))
            (close-output-port tmp-out)
 
-           (define out (open-output-file filename))
+           (define out (open-output-file filename #:exists 'replace))
 
-           (define ports (process* fg-path tmp))
+           (define ports (process* fg-path tmp "--countname" "milliseconds"))
            (copy-port (car ports) out)
            (close-output-port out)]
           [else
