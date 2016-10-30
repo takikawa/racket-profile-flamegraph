@@ -4,9 +4,13 @@
 ;; output to a format that FlameGraph understands
 
 (require profile/analyzer
+         racket/format
          racket/list
          racket/match
          racket/set)
+
+(provide profile->stacks
+         print-stacks)
 
 ;; names - (listof any/c)
 ;; count - integer?
@@ -22,7 +26,12 @@
 
   ;; construct all stacks for this node and its children
   (define (recur nd parents)
-    (match-define (node id _ _ total _ _ callees) nd)
+    (match-define (node id src _ total _ _ callees) nd)
+
+    ;; format a string to be used in the graph labels
+    (define name
+      (~a id (or (and src (srcloc->string src)) "")))
+
     ;; it should be the case that this is either a singleton list or null
     (define leaf-cases
       (filter (λ (e) (eq? (edge-callee e) *-node)) callees))
@@ -35,20 +44,18 @@
                         #:unless (set-member? seen (edge-callee callee)))
                (define next-node (edge-callee callee))
                (set-add! seen next-node)
-               (recur next-node (cons id parents)))))
+               (recur next-node (cons name parents)))))
     (cond [(null? leaf-cases)
            children]
           [else
            (define children-total
              (apply + (map stack-count children)))
            ;; cdr off the top because it's always "#f" for the ROOT node
-           (cons (stack (cdr (reverse (cons id parents)))
+           (cons (stack (cdr (reverse (cons name parents)))
                         (- total children-total))
                  children)]))
 
   (recur *-node '()))
-
-(require racket/format)
 
 (define (print-stacks stacks)
   (for ([stack (in-list stacks)])
@@ -57,19 +64,3 @@
             (add-between (map ~a (stack-names stack)) ";")))
     (display " ")
     (displayln (stack-count stack))))
-
-;; taken from the feature-profiler example
-(require racket/port (only-in profile profile-thunk))
-
-(define (divisible x n)
-  (= 0 (modulo x n)))
-
-(define (fizzbuzz n)
-  (for ([i (range n)])
-    (cond [(divisible i 15) (printf "FizzBuzz\n")]
-          [(divisible i 5)  (printf "Buzz\n")]
-          [(divisible i 3)  (printf "Fizz\n")]
-          [else             (printf "~a\n" i)])))
-
-(profile-thunk (lambda () (parameterize ([current-output-port (open-output-nowhere)]) (fizzbuzz 10000000)))
-               #:render (lambda (pf _) (print-stacks (profile->stacks pf))))
