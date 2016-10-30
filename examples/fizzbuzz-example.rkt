@@ -17,4 +17,5 @@
 
 (profile (parameterize ([current-output-port (open-output-nowhere)])
            (fizzbuzz 10000000))
-         #:svg-path "fizzbuzz.svg")
+         #:svg-path "fizzbuzz.svg"
+         #:preview? #t)

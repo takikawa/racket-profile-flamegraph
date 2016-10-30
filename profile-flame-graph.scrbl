@@ -15,6 +15,7 @@ script understands.
 @defproc[(profile-thunk
           [thunk (-> any/c)]
           [#:svg-path svg-path (or/c path? #f) #f]
+          [#:preview? preview? any/c #f]
           [#:delay   delay      (>=/c 0.0)        0.05]
           [#:repeat  iterations exact-nonnegative-integer? 1]
           [#:threads threads?   any/c                      #f]
@@ -38,6 +39,10 @@ script understands.
   Otherwise, the function will print the profile results in a format
   that is understood by the @tt{flamegraph.pl} script to the current
   output port.
+
+  If @racket[preview?] is a true value, then an SVG document will be
+  generated (either to @racket[svg-path] or to a temporary path) and
+  will be displayed in a new GUI window.
 }
 
 @defform[(profile expr keyword-arguments ...)]{
