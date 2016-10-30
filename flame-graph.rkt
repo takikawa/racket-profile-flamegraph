@@ -30,7 +30,9 @@
 
     ;; format a string to be used in the graph labels
     (define name
-      (~a id (or (and src (srcloc->string src)) "")))
+      (~a (or id "")
+          (if id " @ " "")
+          (or (and src (srcloc->string src)) "")))
 
     ;; it should be the case that this is either a singleton list or null
     (define leaf-cases
