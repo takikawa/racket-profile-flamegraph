@@ -26,6 +26,12 @@ git clone https://github.com/brendangregg/FlameGraph.git
 export PATH="$PATH:$PWD/FlameGraph"
 ```
 
+Add this import into the program you want to profile:
+
+```
+(require profile-flame-graph)
+```
+
 Wrap the expression you want to profile in your program like this:
 
 ```racket
