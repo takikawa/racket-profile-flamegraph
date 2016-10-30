@@ -1,15 +1,17 @@
 #lang racket/base
 
-(require "flame-graph.rkt"
+(require profile-flame-graph/flame-graph
          profile
          racket/file
          racket/port
-         racket/system)
+         racket/system
+         (for-syntax racket/base))
 
-(provide profile-thunk-fg)
+(provide (rename-out [profile-thunk-fg profile-thunk]
+                     [profile-fg profile]))
 
 (define (profile-thunk-fg thunk
-                          [filename #f]
+                          #:svg-path [svg-path #f]
                           #:delay [delay 0.05]
                           #:repeat [iterations 1]
                           #:threads [threads? #f]
@@ -20,11 +22,15 @@
                  #:delay delay
                  #:repeat iterations
                  #:threads threads?
-                 #:render (do-print filename)
+                 #:render (do-print svg-path)
                  #:periodic-renderer periodic-renderer
                  #:use-errortrace? use-errortrace?
                  #:order order))
 
+(define-syntax (profile-fg stx)
+  (syntax-case stx ()
+    [(_ e . kws)
+     (syntax/loc stx (profile-thunk-fg (λ () e) . kws))]))
 
 (define (do-print filename)
   (λ (pf _)

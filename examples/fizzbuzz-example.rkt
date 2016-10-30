@@ -2,7 +2,7 @@
 
 ;; example taken from the feature-profiler docs
 
-(require "profile.rkt"
+(require profile-flame-graph
          racket/port)
 
 (define (divisible x n)
@@ -15,7 +15,6 @@
           [(divisible i 3)  (printf "Fizz\n")]
           [else             (printf "~a\n" i)])))
 
-(profile-thunk-fg (λ ()
-                    (parameterize ([current-output-port (open-output-nowhere)])
-                      (fizzbuzz 10000000)))
-                  "fizzbuzz.svg")
+(profile (parameterize ([current-output-port (open-output-nowhere)])
+           (fizzbuzz 10000000))
+         #:svg-path "fizzbuzz.svg")

@@ -1,4 +1,4 @@
-# racket-profile-flamegraph
+# profile-flamegraph
 
 A library for providing Racket profiler outputs as
 [flame graphs](https://github.com/brendangregg/FlameGraph).
