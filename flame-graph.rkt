@@ -1,63 +1,48 @@
 #lang racket/base
 
-;; This module implements a conversion from Racket's profiler analyzer
+;; This module implements a conversion from Racket's profiler sampler
 ;; output to a format that FlameGraph understands
 
-(require profile/analyzer
+(require data/order
          racket/format
          racket/list
          racket/match
          racket/set)
 
-(provide profile->stacks
+(provide samples->stacks
          print-stacks)
 
 ;; names - (listof any/c)
 ;; count - integer?
 (struct stack (names count) #:transparent)
 
-;; profile? -> (listof stack?)
-(define (profile->stacks pf)
-  (match-define (profile _ _ _ _ _ *-node) pf)
+;; any -> (listof stack?)
+;; The input is the *undocumented* format accepted by profile/analyzer's analyze-samples.
+(define (samples->stacks cpu-time+samples)
+  (match-define (cons cpu-time samples) cpu-time+samples)
 
-  ;; track already seen nodes to avoid repetition in depth-first
-  ;; traversal of the call graph
-  (define seen (mutable-seteq))
+  ;; format a string to be used in the graph labels
+  (define (frame->name f)
+    (match-define (cons id src) f)
+    (~a (or id "")
+        (if id " @ " "")
+        (or (and src (srcloc->string src)) "")))
 
-  ;; construct all stacks for this node and its children
-  (define (recur nd parents)
-    (match-define (node id src _ total self _ callees) nd)
+  ;; format a sample into a stack with a single count
+  (define (->stack1 e)
+    (match-define (list* thread-id _timestamp-ms frames) e)
+    (stack (cons (format "thread-~a" thread-id)
+                 (append (map frame->name (reverse frames))))
+           1))
 
-    ;; format a string to be used in the graph labels
-    (define name
-      (~a (or id "")
-          (if id " @ " "")
-          (or (and src (srcloc->string src)) "")))
+  (define-values (_prev _prev-count acc)
+    (for/fold [(prev #f) (prev-count 0) (acc '())]
+              [(s (sort (map ->stack1 samples) (order-<? datum-order)))]
+      (cond [(equal? prev (stack-names s)) (values prev (+ prev-count 1) acc)]
+            [(not prev) (values (stack-names s) (stack-count s) acc)]
+            [else (values (stack-names s) (stack-count s) (cons (stack prev prev-count) acc))])))
 
-    ;; it should be the case that this is either a singleton list or null
-    (define leaf-cases
-      (filter (λ (e) (eq? (edge-callee e) *-node)) callees))
-    ;; reverse b/c it appears the node with the deepest call chain tends to
-    ;; be the last one
-    (define rcallees (reverse callees))
-    (define children
-      (apply append
-             (for/list ([callee (in-list (remove* leaf-cases rcallees eq?))]
-                        #:unless (set-member? seen (edge-callee callee)))
-               (define next-node (edge-callee callee))
-               (set-add! seen next-node)
-               (recur next-node (cons name parents)))))
-    (cond [(null? leaf-cases)
-           children]
-          [else
-           (cons ;; cdr off the top because it's always "#f" for the ROOT node
-                 (stack (cdr (reverse (cons name parents)))
-                        ;; only count self time to avoid double counting
-                        ;; child times
-                        self)
-                 children)]))
-
-  (recur *-node '()))
+  acc)
 
 (define (print-stacks stacks)
   (for ([stack (in-list stacks)])

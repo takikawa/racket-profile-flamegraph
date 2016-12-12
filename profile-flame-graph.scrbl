@@ -19,17 +19,11 @@ script understands.
           [#:delay   delay      (>=/c 0.0)        0.05]
           [#:repeat  iterations exact-nonnegative-integer? 1]
           [#:threads threads?   any/c                      #f]
-          [#:periodic-renderer periodic-renderer
-           (or/c #f (list/c (>=/c 0.0)
-                            (-> profile?
-                                (or/c 'topological 'self 'total)
-                                any/c)))
-           #f]
-          [#:use-errortrace? use-errortrace? any/c #f]
-          [#:order order (or/c 'topological 'self 'total) 'topological])
+          [#:use-errortrace? use-errortrace? any/c #f])
          any/c]{
   Identical to the function in the @racketmodname[profile] library
-  except that it does not accept a @racket[#:render] keyword and takes
+  except that it does not accept a @racket[#:render] keyword, does not
+  support the @racket[#:periodic-renderer] feature, and takes
   an optional @racket[svg-path] argument.
 
   If @racket[svg-path] is provided, this function will attempt to call
