@@ -11,8 +11,7 @@
 
 (profile-thunk (λ ()
                  (parameterize ([current-directory runpth]
-                                [current-command-line-arguments `#(,pth)])
+                                [current-command-line-arguments `#("--markdown" ,pth)])
                    (dynamic-require 'scribble/run #f))
                  (void))
-               #:delay 0.01
                #:svg-path "scribble.svg")
