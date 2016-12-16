@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require pict
+(require net/sendurl
          profile-flame-graph/flame-graph
          profile/sampler
          racket/file
@@ -62,6 +62,6 @@
          (close-output-port out)
 
          (when preview?
-           (show-pict (svg-file->pict filename)))]
+           (send-url/file filename))]
         [else
          (print-stacks (samples->stacks pf))]))

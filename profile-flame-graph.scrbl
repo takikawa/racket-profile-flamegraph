@@ -3,6 +3,7 @@
 @title{profile-flame-graph}
 
 @(require (for-label racket/base
+                     net/sendurl
                      profile-flame-graph))
 
 @defmodule[profile-flame-graph]
@@ -36,7 +37,7 @@ script understands.
 
   If @racket[preview?] is a true value, then an SVG document will be
   generated (either to @racket[svg-path] or to a temporary path) and
-  will be displayed in a new GUI window.
+  will be displayed in the configured web browser using @racket[send-url/file].
 }
 
 @defform[(profile expr keyword-arguments ...)]{
