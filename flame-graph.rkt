@@ -32,7 +32,7 @@
   (define (->stack1 e)
     (match-define (list* thread-id _timestamp-ms frames) e)
     (stack (cons (format "thread-~a" thread-id)
-                 (append (map frame->name (reverse frames))))
+                 (append (map frame->name (reverse (remove-adjacent-duplicates frames)))))
            1))
 
   (define-values (_prev _prev-count acc)
@@ -43,6 +43,18 @@
             [else (values (stack-names s) (stack-count s) (cons (stack prev prev-count) acc))])))
 
   acc)
+
+(define (remove-adjacent-duplicates lst)
+  (cond [(null? lst) null]
+        [else
+         (define-values (new-lst _)
+           (for/fold ([new-lst '()]
+                      [prev (car lst)])
+                     ([elem (in-list (cdr lst))])
+             (if (equal? elem prev)
+                 (values new-lst prev)
+                 (values (cons prev new-lst) elem))))
+         (reverse new-lst)]))
 
 (define (print-stacks stacks)
   (for ([stack (in-list stacks)])
