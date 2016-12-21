@@ -18,4 +18,6 @@
 (profile (parameterize ([current-output-port (open-output-nowhere)])
            (fizzbuzz 10000000))
          #:svg-path "fizzbuzz.svg"
-         #:preview? #t)
+         #:preview? #t
+         #:width 1000
+         #:font-size 18)
