@@ -21,7 +21,6 @@
                           #:use-errortrace? [et? #f]
                           #:width [width #f]
                           #:font-size [font-size #f])
-)
   (define cust (and threads? (make-custodian (current-custodian))))
   (define sampler (create-sampler (if threads?
                                     (list cust (current-thread))
