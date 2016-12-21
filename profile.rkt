@@ -18,7 +18,10 @@
                           #:delay [delay 0.05]
                           #:repeat [rpt 1]
                           #:threads [threads? #f]
-                          #:use-errortrace? [et? #f])
+                          #:use-errortrace? [et? #f]
+                          #:width [width #f]
+                          #:font-size [font-size #f])
+)
   (define cust (and threads? (make-custodian (current-custodian))))
   (define sampler (create-sampler (if threads?
                                     (list cust (current-thread))
@@ -34,14 +37,14 @@
                 (parameterize ([current-custodian cust]) (run))
                 (run)))
     (sampler 'stop)
-    (do-print svg-path preview? (sampler 'get-snapshots))))
+    (do-print svg-path preview? (sampler 'get-snapshots) width font-size)))
 
 (define-syntax (profile-fg stx)
   (syntax-case stx ()
     [(_ e . kws)
      (syntax/loc stx (profile-thunk-fg (λ () e) . kws))]))
 
-(define (do-print filename preview? pf)
+(define (do-print filename preview? pf width font-size)
   (cond [(or filename preview?)
          (define fg-path (find-executable-path "flamegraph.pl"))
          (unless fg-path
@@ -57,7 +60,13 @@
            (or filename (make-temporary-file)))
          (define out (open-output-file filename* #:exists 'replace))
 
-         (define ports (process* fg-path tmp))
+         (define ports (apply process* fg-path tmp
+                              (append (if font-size
+                                          (list "--fontsize" (number->string font-size))
+                                          null)
+                                      (if width
+                                          (list "--width" (number->string width))
+                                          null))))
          (copy-port (car ports) out)
          (close-output-port out)
 
