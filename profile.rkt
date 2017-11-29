@@ -6,7 +6,6 @@
          racket/file
          racket/port
          racket/system
-         rsvg
          (for-syntax racket/base))
 
 (provide (rename-out [profile-thunk-fg profile-thunk]
